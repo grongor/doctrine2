@@ -236,12 +236,19 @@ final class EntityManager implements EntityManagerInterface
             $return = $func($this);
 
             $this->flush();
+        } catch (Throwable $e) {
+            $this->close();
+            $this->conn->rollBack();
+
+            throw $e;
+        }
+
+        try {
             $this->conn->commit();
 
             return $return;
         } catch (Throwable $e) {
             $this->close();
-            $this->conn->rollBack();
 
             throw $e;
         }
